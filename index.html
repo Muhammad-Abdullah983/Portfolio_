@@ -233,7 +233,7 @@
       top: 0;
       left: 0;
       right: 0;
-      z-index: 500;
+      z-index: 520;
       padding: 18px 0;
       background: rgba(10, 14, 26, 0.18);
       backdrop-filter: blur(16px);
@@ -319,58 +319,98 @@
       display: none;
       flex-direction: column;
       gap: 5px;
-      width: 26px;
+      width: 32px;
+      height: 32px;
       background: transparent;
       border: none;
-      padding: 4px;
+      border-radius: 14px;
+      padding: 8px;
+      transition: transform 0.25s;
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 540;
+    }
+
+    .nav-toggle:hover {
+      background: transparent;
     }
 
     .nav-toggle span {
+      display: block;
       height: 2px;
       width: 100%;
       background: var(--text);
       border-radius: 2px;
-      transition: transform 0.25s, opacity 0.25s;
+      transform-origin: center;
+      transition: transform 0.25s, opacity 0.25s, background 0.25s;
     }
 
     .nav-toggle.open span:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
+      transform: translateY(7px) rotate(45deg) !important;
     }
 
     .nav-toggle.open span:nth-child(2) {
-      opacity: 0;
+      opacity: 0 !important;
     }
 
     .nav-toggle.open span:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
+      transform: translateY(-7px) rotate(-45deg) !important;
     }
 
     .mobile-menu {
-      display: flex;
+      display: none;
       position: fixed;
       inset: 0;
-      background: rgba(10, 14, 26, 0.98);
-      z-index: 480;
+      background: rgba(10, 14, 26, 0.35);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 45px 140px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 510;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 20px;
-      padding: 40px 28px;
-      transform: translateY(-100%);
-      transition: transform 0.4s var(--ease);
+      padding: 52px 24px 24px;
+      transition: opacity 0.4s var(--ease), visibility 0.4s var(--ease);
       text-align: center;
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .mobile-menu::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.10), transparent 55%), linear-gradient(180deg, rgba(16, 20, 36, 0.9) 0%, rgba(16, 20, 36, 0.62) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .mobile-menu>* {
+      position: relative;
+      z-index: 2;
     }
 
     .mobile-menu.open {
-      transform: translateY(0);
+      display: flex !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
     }
 
     .mobile-menu .menu-links {
       display: flex;
       flex-direction: column;
       gap: 18px;
-      width: 100%;
-      max-width: 320px;
+      width: min(360px, calc(100% - 40px));
+      padding-top: 16px;
+      margin: 10px auto;
+      align-items: center;
     }
 
     .mobile-menu a {
@@ -396,8 +436,10 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: min(100%, 260px);
+      width: min(100%, 280px);
       box-shadow: 0 16px 40px -24px rgba(124, 111, 255, 0.8);
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .mobile-menu .mobile-resume:hover {
@@ -677,8 +719,8 @@
     .float-badge {
       position: absolute;
       font-family: var(--font-mono);
-      font-size: 0.75rem;
-      padding: 8px 14px;
+      font-size: 0.66rem;
+      padding: 6px 12px;
       border-radius: 999px;
       background: rgba(18, 23, 41, 0.75);
       backdrop-filter: blur(8px);
@@ -686,7 +728,7 @@
       color: var(--text);
       z-index: 3;
       animation: float-badge 6s ease-in-out infinite;
-      box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.45);
     }
 
     .fb-1 {
@@ -727,7 +769,9 @@
 
     @media (max-width: 900px) {
       .float-badge {
-        display: none;
+        display: inline-flex;
+        font-size: 0.72rem;
+        padding: 4px 10px;
       }
     }
 
@@ -1947,13 +1991,23 @@
 
     const navToggle = document.getElementById('navToggle');
     const mobileMenu = document.getElementById('mobileMenu');
-    navToggle.addEventListener('click', () => {
-      mobileMenu.classList.toggle('open');
-      navToggle.classList.toggle('open');
-    });
-    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    function openMobileMenu() {
+      mobileMenu.classList.add('open');
+      navToggle.classList.add('open');
+    }
+    function closeMobileMenu() {
       mobileMenu.classList.remove('open');
       navToggle.classList.remove('open');
+    }
+    navToggle.addEventListener('click', () => {
+      if (mobileMenu.classList.contains('open')) {
+        closeMobileMenu();
+      } else {
+        openMobileMenu();
+      }
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      closeMobileMenu();
     }));
 
     document.getElementById('year').textContent = new Date().getFullYear();
